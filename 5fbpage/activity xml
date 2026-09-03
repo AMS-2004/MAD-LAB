@@ -81,7 +81,7 @@
                 android:layout_height="250dp"
                 android:layout_marginTop="10dp"
                 android:scaleType="centerCrop"
-                android:src="@drawable/v" />
+                android:src="@drawable/vaikom" />
 
             <!-- Buttons -->
             <LinearLayout
@@ -122,4 +122,3 @@
     </LinearLayout>
 
 </ScrollView>
-
