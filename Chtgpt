@@ -1,0 +1,126 @@
+package com.example.alert;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import android.database.Cursor;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
+
+public class MainActivity extends AppCompatActivity {
+    DatabaseHelper myDb;
+    EditText editTextId, editTextName, editTextEmail;
+    Button btnAdd, btnView, btnUpdate, btnDelete;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main); //[span_0](start_span)[span_0](end_span)
+
+        // Assign to class variable directly (do NOT re-declare DatabaseHelper here)
+        myDb = new DatabaseHelper(this); //[span_1](start_span)[span_1](end_span)
+
+        // Initialize UI components
+        editTextId = findViewById(R.id.editTextId); //[span_2](start_span)[span_2](end_span)
+        editTextName = findViewById(R.id.editTextName); //[span_3](start_span)[span_3](end_span)
+        editTextEmail = findViewById(R.id.editTextEmail); //[span_4](start_span)[span_4](end_span)
+        btnAdd = findViewById(R.id.btnAdd); //[span_5](start_span)[span_5](end_span)
+        btnView = findViewById(R.id.btnView); //[span_6](start_span)[span_6](end_span)
+        btnUpdate = findViewById(R.id.btnUpdate);
+        btnDelete = findViewById(R.id.btnDelete);
+
+        // Set up button listeners
+        addData(); //[span_7](start_span)[span_7](end_span)
+        viewAll(); //[span_8](start_span)[span_8](end_span)
+        updateData(); //[span_9](start_span)[span_9](end_span)
+        deleteData(); //[span_10](start_span)[span_10](end_span)
+    }
+
+    // Handle "ADD" button click
+    public void addData() { //[span_11](start_span)[span_11](end_span)
+        btnAdd.setOnClickListener(new View.OnClickListener() { //[span_12](start_span)[span_12](end_span)
+            @Override
+            public void onClick(View v) { //[span_13](start_span)[span_13](end_span)
+                boolean isInserted = myDb.insertData(
+                        editTextName.getText().toString(), //[span_14](start_span)[span_14](end_span)
+                        editTextEmail.getText().toString() //[span_15](start_span)[span_15](end_span)
+                );
+
+                if (isInserted) { //[span_16](start_span)[span_16](end_span)
+                    Toast.makeText(MainActivity.this, "Data Inserted Successfully!", Toast.LENGTH_SHORT).show(); //[span_17](start_span)[span_17](end_span)
+                } else {
+                    Toast.makeText(MainActivity.this, "Data Insertion Failed", Toast.LENGTH_SHORT).show(); //[span_18](start_span)[span_18](end_span)
+                }
+            }
+        });
+    }
+
+    // Handle "VIEW ALL" button click
+    public void viewAll() { //[span_19](start_span)[span_19](end_span)
+        btnView.setOnClickListener(new View.OnClickListener() { //[span_20](start_span)[span_20](end_span)
+            @Override
+            public void onClick(View v) { //[span_21](start_span)[span_21](end_span)
+                Cursor res = myDb.getAllData(); //[span_22](start_span)[span_22](end_span)
+                if (res.getCount() == 0) { //[span_23](start_span)[span_23](end_span)
+                    showMessage("Error", "Nothing found"); //[span_24](start_span)[span_24](end_span)
+                    return; //[span_25](start_span)[span_25](end_span)
+                }
+
+                StringBuffer buffer = new StringBuffer(); //[span_26](start_span)[span_26](end_span)
+                while (res.moveToNext()) { //[span_27](start_span)[span_27](end_span)
+                    buffer.append("ID: " + res.getString(0) + "\n"); //[span_28](start_span)[span_28](end_span)
+                    buffer.append("Name: " + res.getString(1) + "\n"); //[span_29](start_span)[span_29](end_span)
+                    buffer.append("Email: " + res.getString(2) + "\n\n"); //[span_30](start_span)[span_30](end_span)
+                }
+
+                showMessage("Data", buffer.toString()); //[span_31](start_span)[span_31](end_span)
+            }
+        });
+    }
+
+    // Handle "UPDATE" button click
+    public void updateData() {
+        btnUpdate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                boolean isUpdate = myDb.updateData(
+                        editTextId.getText().toString(),
+                        editTextName.getText().toString(),
+                        editTextEmail.getText().toString()
+                );
+
+                if (isUpdate) {
+                    Toast.makeText(MainActivity.this, "Data Updated Successfully!", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(MainActivity.this, "Data Update Failed", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    // Handle "DELETE" button click
+    public void deleteData() {
+        btnDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Integer deletedRows = myDb.deleteData(editTextId.getText().toString());
+                if (deletedRows > 0) {
+                    Toast.makeText(MainActivity.this, "Data Deleted Successfully!", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(MainActivity.this, "Data Deletion Failed", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    // Helper method to display pop-up dialog messages
+    public void showMessage(String title, String message) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setCancelable(true);
+        builder.setTitle(title);
+        builder.setMessage(message);
+        builder.show();
+    }
+}
